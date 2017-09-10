@@ -1,6 +1,10 @@
+FQ3dyK55k6PzzPxYAYFejn*
+*.zip
+*.tar
 data
 .ipynb_checkpoints
 *.h5
 models
 *.swp
 *.p
+*.DS*

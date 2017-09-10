@@ -33,9 +33,15 @@ There seems to be a class imbalance of the dataset as shown in the chart below.
 
 The RGB images were normalised such that it's mean was 0 and standard deviation 1. The mean and standard deviations were calculated from the train data set. No other pre processing or data augmentation was carried out.
 
+This preprocessing step is important as it ensures that the gradient information is kept small, ensuring that large steps in the direction of gradients is avoided.
 
 ### Model Architecture
+#### First Models:
+The initial model consisted of a Basic LeNet Architecture, which was two convolutional blocks (5x5 convolution -> Relu -> MaxPool) followed by two Dense layers. The problem with this model was that its accuracy seemed to saturate at 82% when using Batch size of 256.
 
+Increasing it to 3 convolutional blocks increased the accuracy to 84%.
+
+#### Final Model:
 My final model consisted of the following layers:
 
 | Layer         		|     Description	        					|
@@ -65,6 +71,16 @@ Similarly the Dense Block (apart from the very last `Dense`) layer contained Bat
 
 Leaky relu was defined to be: `max(0.1x, x)`.
 
+### Design Decisions
+- **Stacking Conv Layers**:
+We chose to stack two 3x3 layers as this gave an effective receptive field of 5x5, the same as used in LeNet.
+- **Leaky Relu**:
+Since the gradient for an input less than zero for a ReLu activation is zero, this may lead to the problem of 'dead' neurons, where that particular weight may stall in the learning process. Leaky ReLu, circumvents this problem by having a non-zero gradient for intputs less than zero.
+- **Batch Normalisation**:
+This was used as somewhat of a regularisation technique. Since the 'message' that is passed through layers can get amplified due to the multiplication of many weights, the gradient information that comes through back propagation may also be large. By 'normalizing' (so that the mean is zero and standard deviation of one) the inputs that get passed onto the activation layer, side steps this issue.
+- **Batch Size**:
+The batch size turned out to be an important step in the training process. Initially a batch size of 256 was chosen. This lead to saturation of the accuracy at 90% at 200 epochs. However, choosing a batch size of 128, lead to an accuracy of 90% being achieved at 60 epochs. This is most probably due to the fact that gradient information would have been random with a smaller batch size leading to better exploration of the parameter space.
+
 ### Training
 A batch size of 128 was used along with an `RMS Prop` optimizer and was trained for 200 epochs. The learning rate was set at 0.001. Larger batch sizes slowed down the training in that it took longer to reach a 93% accuracy (despite the fact that per batch running time decreased slightly).
 
@@ -87,7 +103,12 @@ Here are five German traffic signs that I found on the web:
 
 ![test images](./im2/test_images.png)
 
-The 3rd, 5th and 6th images had a hard time classifying the image. The 5th image infact did not even contain the class in the top 5. The accuracy in this case is 50%.
+In comparison to the dataset downloaded for this assignment, these images are not necessarily centred (see especially the 60km/h speed limit). The images are all taken in bright conditions.
+
+The accuracy is 50% in using these test images, with 66.6% top 5 accuracy. This is in comparison to 94.7% accuracy in the test set suggesting that there may have been overfitting.
+
+The confusion matrix on the test set shows that there are some classes that needs further training before being used in production. Some as low as 50% accuracy.
+![conf matrix](./im2/confusion_matrix.png)
 
 ### Visualizing the Neural Network
 ![activation](./im2/activations.png)
